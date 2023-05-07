@@ -42,13 +42,14 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-// Dependência de zx e zy
+// Dependência de 'zx' e 'zy'
+// Função: Zerar a saída
 // if (zx == 1) then x = 0;
 // if (zy == 1) then y = 0;
     Mux16 (a = x, b = false, sel = zx, out = zerox);
     Mux16 (a = y, b = false, sel = zy, out = zeroy);
 
-// Dependência de nx e nz
+// Dependência de 'nx' e 'nz'
 // Função: Negação
 // if (nx == 1) then x = !x;
 // if (ny == 1) then y = !y;
@@ -58,18 +59,22 @@ CHIP ALU {
     Not16 (in = zeroy, out = notzeroy);
     Mux16 (a = zeroy, b = notzeroy, sel = ny, out = negy);
 
-// Dependência de f
+// Dependência de 'f'
+// Função: Operação Aritmética e Lógica
 // if (f == 1) then out = x + y else out = x&y;
     And16 (a = negx, b = negy, out = xandy);
     Add16 (a = negx, b = negy, out = xaddy);
     Mux16 (a = xandy, b = xaddy, sel = f, out = xfy);
 
-// Dependência de no
+// Dependência de 'no'
+// Função: Negar a saída
 // if (no == 1) then out = !out;
     Not16 (in = xfy, out = notxfy);
     Mux16 (a = xfy, b = notxfy, sel = no, out = out, out[0..7] = left.8bits.out, out[8..15] = right.8bits.out, out[15] = ng);
 
 // Sinais de zr e ng
+// Função: Sinais de controle 
+// if (out < 0) then ng = 1;
 // if (final.out == 0) then zr = 1;
     Or8Way (in = left.8bits.out, out = left.8bits.or);
     Or8Way (in = right.8bits.out, out = right.8bits.or);
