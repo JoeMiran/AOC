@@ -42,5 +42,37 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+// Dependência de zx e zy
+// if (zx == 1) then x = 0;
+// if (zy == 1) then y = 0;
+    Mux16 (a = x, b = false, sel = zx, out = zerox);
+    Mux16 (a = y, b = false, sel = zy, out = zeroy);
+
+// Dependência de nx e nz
+// Função: Negação
+// if (nx == 1) then x = !x;
+// if (ny == 1) then y = !y;
+    Not16 (in = zerox, out = notzerox);
+    Mux16 (a = zerox, b = notzerox, sel = nx, out = negx);
+
+    Not16 (in = zeroy, out = notzeroy);
+    Mux16 (a = zeroy, b = notzeroy, sel = ny, out = negy);
+
+// Dependência de f
+// if (f == 1) then out = x + y else out = x&y;
+    And16 (a = negx, b = negy, out = xandy);
+    Add16 (a = negx, b = negy, out = xaddy);
+    Mux16 (a = xandy, b = xaddy, sel = f, out = xfy);
+
+// Dependência de no
+// if (no == 1) then out = !out;
+    Not16 (in = xfy, out = notxfy);
+    Mux16 (a = xfy, b = notxfy, sel = no, out = out, out[0..7] = left.8bits.out, out[8..15] = right.8bits.out, out[15] = ng);
+
+// Sinais de zr e ng
+// if (final.out == 0) then zr = 1;
+    Or8Way (in = left.8bits.out, out = left.8bits.or);
+    Or8Way (in = right.8bits.out, out = right.8bits.or);
+    Or (a = left.8bits.or, b = right.8bits.or, out = outor);
+    Not (in = outor, out = zr);
 }
