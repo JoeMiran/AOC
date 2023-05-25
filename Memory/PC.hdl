@@ -16,20 +16,10 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
-    Register(in = in, load = true, out = s1);
-    Inc16(in = s1, out = s2);
-    Mux16(a = s1, b = s2, sel = inc, out = s3);
-    Mux16(a = s3, b = false, sel = reset, out = s4);
-    Register (in = s4, load = load, out = out, out = s);
-
-    // Inc16 (in = in, out = incin);
-    // Mux16 (a = in, b = incin, sel = inc, out = s1);
-    // Register (in = s1, load = load, out = s2);
-    // Mux16 (a = s2, b = false, sel = reset, out = out);
-
-    // Inc16 (in = in, out = incin);
-    // Mux16 (a = in, b = incin, sel = inc, out = s1);
-    // Mux16 (a = s1, b = false, sel = reset, out = s2);
-    // Register (in = s2, load = load, out = out);
+    Inc16 (in = s, out = incout);
+    Or (a = load, b = inc, out = linc);
+    Or (a = linc, b = reset, out = rlinc);
+    Mux8Way16 (a= s, b= incout, c= in, d= in, e = false, f = false, g = false, h = false, sel[0]= inc, sel[1] = load, sel[2] = reset, out= w);
+    Register (in = w, load = rlinc, out = out, out = s);
+    //Mux16(a= x, b= false, sel= reset, out = out, out = s);
 }
